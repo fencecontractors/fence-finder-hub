@@ -19,7 +19,7 @@ const ContractorCard = ({ contractor }: ContractorCardProps) => {
   
   // Use local image path if available, otherwise use the updated_image
   const imageSrc = contractor.local_image_path 
-    ? `/${contractor.unique_id}.jpg` 
+    ? `/images/${contractor.unique_id}.jpg` 
     : imageError 
       ? contractor.photo_url 
       : contractor.updated_image;

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { MapPin, Phone, Globe, Star, ChevronLeft } from "lucide-react";
@@ -50,14 +49,12 @@ const ContractorDetail = () => {
     );
   }
 
-  // Get appropriate image source
   const imageSrc = contractor.local_image_path 
-    ? `/${contractor.unique_id}.jpg` 
+    ? `/images/${contractor.unique_id}.jpg` 
     : imageError 
       ? contractor.photo_url 
       : contractor.updated_image;
 
-  // JSON-LD structured data for SEO
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -174,7 +171,6 @@ const ContractorDetail = () => {
               </div>
             </div>
             
-            {/* Map Component */}
             <div className="bg-card rounded-xl shadow-sm p-6 border">
               <h2 className="text-xl font-bold mb-4">Location</h2>
               <div className="h-[400px] rounded-lg overflow-hidden">
@@ -183,16 +179,14 @@ const ContractorDetail = () => {
             </div>
           </div>
           
-          {/* Sidebar with Neighbor Contractors */}
           <div className="space-y-8">
             {neighborContractors.length > 0 && (
               <div className="bg-card rounded-xl shadow-sm p-6 border">
                 <h2 className="text-xl font-bold mb-4">Nearby Contractors</h2>
                 <div className="space-y-4">
                   {neighborContractors.map(neighbor => {
-                    // Get appropriate image source for neighbor
                     const neighborImageSrc = neighbor.local_image_path 
-                      ? `/${neighbor.unique_id}.jpg` 
+                      ? `/images/${neighbor.unique_id}.jpg` 
                       : neighbor.photo_url;
                     
                     return (
@@ -205,7 +199,6 @@ const ContractorDetail = () => {
                                 alt={neighbor.title}
                                 className="h-full w-full object-cover"
                                 onError={(e) => {
-                                  // Fallback to photo_url if local image fails
                                   (e.target as HTMLImageElement).src = neighbor.photo_url;
                                 }}
                               />
