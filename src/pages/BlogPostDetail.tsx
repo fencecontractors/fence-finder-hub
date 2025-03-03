@@ -5,26 +5,13 @@ import { format } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/layout/PageLayout";
-import { blogPosts } from "@/data";
-import { BlogPost } from "@/types";
+import { useBlogPost } from "@/data";
 
 const BlogPostDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: post, isLoading } = useBlogPost(slug || "");
   
-  useEffect(() => {
-    // Find the blog post by slug
-    const foundPost = blogPosts.find(p => p.slug === slug);
-    
-    if (foundPost) {
-      setPost(foundPost);
-    }
-    
-    setLoading(false);
-  }, [slug]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <PageLayout>
         <div className="page-container text-center">

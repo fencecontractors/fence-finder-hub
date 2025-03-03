@@ -5,10 +5,18 @@ import { formatStateForUrl } from "@/utils";
 
 interface StatesListProps {
   states: string[];
+  filterQuery?: string;
 }
 
-const StatesList = ({ states }: StatesListProps) => {
-  if (states.length === 0) {
+const StatesList = ({ states, filterQuery = "" }: StatesListProps) => {
+  // Filter states based on search query if provided
+  const filteredStates = filterQuery 
+    ? states.filter(state => 
+        state.toLowerCase().includes(filterQuery.toLowerCase())
+      )
+    : states;
+
+  if (filteredStates.length === 0) {
     return (
       <div className="text-center py-16">
         <p className="text-muted-foreground">No states found.</p>
@@ -18,7 +26,7 @@ const StatesList = ({ states }: StatesListProps) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {states.map((state) => (
+      {filteredStates.map((state) => (
         <Link
           key={state}
           to={`/contractors/${formatStateForUrl(state)}`}

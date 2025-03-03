@@ -7,24 +7,47 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { fenceContractors } from "@/data";
+import { useLocationData } from "@/data";
 
 const StateContractors = () => {
   const { state } = useParams<{ state: string }>();
   const [searchQuery, setSearchQuery] = useState("");
   const [formattedState, setFormattedState] = useState("");
+  const { data: locationData, isLoading } = useLocationData();
+  const [cities, setCities] = useState<string[]>([]);
+  const [stateExists, setStateExists] = useState(false);
   
   useEffect(() => {
     if (state) {
       // Convert URL format (texas) to display format (Texas)
       setFormattedState(state.charAt(0).toUpperCase() + state.slice(1));
     }
-  }, [state]);
 
-  // Check if state exists in data
-  const stateExists = fenceContractors.some(
-    contractor => contractor.state.toLowerCase() === state?.toLowerCase()
-  );
+    if (locationData && state) {
+      // Check if state exists in data
+      const foundState = locationData.states.find(
+        s => s.toLowerCase() === state.toLowerCase()
+      );
+      
+      if (foundState) {
+        setStateExists(true);
+        setCities(locationData.citiesByState[foundState] || []);
+      } else {
+        setStateExists(false);
+        setCities([]);
+      }
+    }
+  }, [state, locationData]);
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="page-container text-center">
+          <p>Loading...</p>
+        </div>
+      </PageLayout>
+    );
+  }
   
   if (!stateExists) {
     return (
@@ -69,7 +92,7 @@ const StateContractors = () => {
           </div>
         </div>
         
-        <CitiesList state={state || ""} filterQuery={searchQuery} />
+        <CitiesList state={state || ""} cities={cities} filterQuery={searchQuery} />
       </div>
     </PageLayout>
   );

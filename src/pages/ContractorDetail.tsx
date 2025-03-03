@@ -7,35 +7,22 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import PageLayout from "@/components/layout/PageLayout";
 import ContractorMap from "@/components/contractors/ContractorMap";
-import { fenceContractors } from "@/data";
-import { FenceContractor } from "@/types";
+import { useContractor, useNeighboringContractors } from "@/data";
+import { Contractor } from "@/types";
 
 const ContractorDetail = () => {
   const { state, city, id } = useParams<{ state: string; city: string; id: string }>();
-  const [contractor, setContractor] = useState<FenceContractor | null>(null);
-  const [neighborContractors, setNeighborContractors] = useState<FenceContractor[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: contractor, isLoading: isLoadingContractor } = useContractor(id || "");
+  const [neighborIds, setNeighborIds] = useState<string[]>([]);
+  const { data: neighborContractors = [], isLoading: isLoadingNeighbors } = useNeighboringContractors(neighborIds);
   
   useEffect(() => {
-    // Find the contractor by unique_id
-    const foundContractor = fenceContractors.find(c => c.unique_id === id);
-    
-    if (foundContractor) {
-      setContractor(foundContractor);
-      
-      // Find neighbor contractors based on the neighbor IDs
-      if (foundContractor.neighbors && foundContractor.neighbors.length > 0) {
-        const neighbors = fenceContractors.filter(c => 
-          foundContractor.neighbors.includes(c.unique_id)
-        );
-        setNeighborContractors(neighbors);
-      }
+    if (contractor?.neighbors) {
+      setNeighborIds(contractor.neighbors);
     }
-    
-    setLoading(false);
-  }, [id]);
+  }, [contractor]);
 
-  if (loading) {
+  if (isLoadingContractor) {
     return (
       <PageLayout>
         <div className="page-container text-center">
@@ -182,11 +169,7 @@ const ContractorDetail = () => {
             <div className="bg-card rounded-xl shadow-sm p-6 border">
               <h2 className="text-xl font-bold mb-4">Location</h2>
               <div className="h-[400px] rounded-lg overflow-hidden">
-                <ContractorMap 
-                  latitude={contractor.latitude} 
-                  longitude={contractor.longitude} 
-                  contractor={contractor}
-                />
+                <ContractorMap contractor={contractor} />
               </div>
             </div>
           </div>

@@ -1,4 +1,3 @@
-
 export interface Contractor {
   title: string;
   link: string;
@@ -20,6 +19,8 @@ export interface Contractor {
   geohash: string;
   neighbors: string[];
 }
+
+export type FenceContractor = Contractor;
 
 export interface BlogPost {
   id: string;

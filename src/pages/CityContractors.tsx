@@ -7,13 +7,18 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { fenceContractors } from "@/data";
+import { useContractorsByCity } from "@/data";
 
 const CityContractors = () => {
   const { state, city } = useParams<{ state: string; city: string }>();
   const [searchQuery, setSearchQuery] = useState("");
   const [formattedState, setFormattedState] = useState("");
   const [formattedCity, setFormattedCity] = useState("");
+  
+  const { data: contractors, isLoading, isError } = useContractorsByCity(
+    state || "", 
+    city || ""
+  );
   
   useEffect(() => {
     if (state) {
@@ -31,14 +36,17 @@ const CityContractors = () => {
     }
   }, [state, city]);
 
-  // Check if city exists in data for the given state
-  const cityExists = fenceContractors.some(
-    contractor => 
-      contractor.state.toLowerCase() === state?.toLowerCase() &&
-      contractor.city.toLowerCase() === city?.toLowerCase()
-  );
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="page-container text-center">
+          <p>Loading contractors...</p>
+        </div>
+      </PageLayout>
+    );
+  }
   
-  if (!cityExists) {
+  if (isError || !contractors || contractors.length === 0) {
     return (
       <PageLayout>
         <div className="page-container text-center">
@@ -84,9 +92,10 @@ const CityContractors = () => {
         </div>
         
         <ContractorsList 
-          state={state || ""} 
-          city={city || ""} 
-          searchQuery={searchQuery} 
+          contractors={contractors}
+          searchQuery={searchQuery}
+          state={state}
+          city={city}
         />
       </div>
     </PageLayout>

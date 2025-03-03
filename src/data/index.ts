@@ -4,6 +4,10 @@ import { Contractor, LocationData, BlogPost } from "../types";
 import contractorsData from "./fence_contractors.json";
 import blogPostsData from "./blog_posts.json";
 
+// Export raw data for direct access
+export const fenceContractors = contractorsData as Contractor[];
+export const blogPosts = blogPostsData as BlogPost[];
+
 // Utility to load all contractors
 export const useContractors = () => {
   return useQuery({

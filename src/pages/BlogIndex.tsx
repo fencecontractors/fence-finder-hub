@@ -1,20 +1,41 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
 import BlogPostCard from "@/components/blog/BlogPostCard";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { blogPosts } from "@/data";
+import { useBlogPosts } from "@/data";
+import { BlogPost } from "@/types";
 
 const BlogIndex = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { data: blogPosts = [], isLoading } = useBlogPosts();
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
   
-  // Filter blog posts based on search query
-  const filteredPosts = blogPosts.filter(post => 
-    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    // Filter blog posts based on search query
+    if (blogPosts.length > 0) {
+      const filtered = searchQuery
+        ? blogPosts.filter(post => 
+            post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : blogPosts;
+      
+      setFilteredPosts(filtered);
+    }
+  }, [searchQuery, blogPosts]);
+  
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="page-container text-center">
+          <p>Loading blog posts...</p>
+        </div>
+      </PageLayout>
+    );
+  }
   
   return (
     <PageLayout>

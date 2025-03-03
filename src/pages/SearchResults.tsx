@@ -6,22 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageLayout from "@/components/layout/PageLayout";
 import ContractorCard from "@/components/contractors/ContractorCard";
-import { fenceContractors } from "@/data";
-import { FenceContractor } from "@/types";
+import { useContractors } from "@/data";
+import { Contractor } from "@/types";
+import { formatStateForUrl, formatCityForUrl } from "@/utils";
 
 const SearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
   const [searchQuery, setSearchQuery] = useState(query);
-  const [results, setResults] = useState<FenceContractor[]>([]);
+  const [results, setResults] = useState<Contractor[]>([]);
+  const { data: contractors = [], isLoading } = useContractors();
   
   useEffect(() => {
     // Set the search input value to the query parameter
     setSearchQuery(query);
     
     // Filter contractors based on the search query
-    if (query) {
-      const filteredResults = fenceContractors.filter(contractor => 
+    if (query && contractors.length > 0) {
+      const filteredResults = contractors.filter(contractor => 
         contractor.title.toLowerCase().includes(query.toLowerCase()) ||
         contractor.city.toLowerCase().includes(query.toLowerCase()) ||
         contractor.state.toLowerCase().includes(query.toLowerCase()) ||
@@ -32,12 +34,22 @@ const SearchResults = () => {
     } else {
       setResults([]);
     }
-  }, [query]);
+  }, [query, contractors]);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSearchParams({ q: searchQuery });
   };
+  
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="page-container text-center">
+          <p>Loading...</p>
+        </div>
+      </PageLayout>
+    );
+  }
   
   return (
     <PageLayout>
@@ -75,7 +87,7 @@ const SearchResults = () => {
             {results.map(contractor => (
               <Link 
                 key={contractor.unique_id}
-                to={`/contractors/${contractor.state.toLowerCase()}/${contractor.city.toLowerCase()}/${contractor.unique_id}`}
+                to={`/contractors/${formatStateForUrl(contractor.state)}/${formatCityForUrl(contractor.city)}/${contractor.unique_id}`}
               >
                 <ContractorCard contractor={contractor} />
               </Link>

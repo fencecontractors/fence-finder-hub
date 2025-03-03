@@ -1,13 +1,22 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import StatesList from "@/components/contractors/StatesList";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useLocationData } from "@/data";
 
 const ContractorsIndex = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { data: locationData, isLoading } = useLocationData();
+  const [states, setStates] = useState<string[]>([]);
   
+  useEffect(() => {
+    if (locationData) {
+      setStates(locationData.states);
+    }
+  }, [locationData]);
+
   return (
     <PageLayout>
       <div className="page-container">
@@ -26,7 +35,13 @@ const ContractorsIndex = () => {
           </div>
         </div>
         
-        <StatesList filterQuery={searchQuery} />
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p>Loading states...</p>
+          </div>
+        ) : (
+          <StatesList states={states} filterQuery={searchQuery} />
+        )}
       </div>
     </PageLayout>
   );
