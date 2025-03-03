@@ -14,6 +14,7 @@ import ContractorDetail from "./pages/ContractorDetail";
 import BlogIndex from "./pages/BlogIndex";
 import BlogPostDetail from "./pages/BlogPostDetail";
 import SearchResults from "./pages/SearchResults";
+import Sitemap from "./pages/Sitemap";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,9 @@ const App = () => (
             
             {/* Search Route */}
             <Route path="/search" element={<SearchResults />} />
+            
+            {/* Sitemap Route */}
+            <Route path="/sitemap.xml" element={<Sitemap />} />
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />

@@ -2,17 +2,17 @@
 import { Helmet } from "react-helmet-async";
 
 interface MetaTagsProps {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   canonicalUrl?: string;
   ogImage?: string;
 }
 
 const MetaTags = ({
-  title,
-  description,
+  title = "Fence Contractors Directory",
+  description = "Find the best fence contractors in your area",
   canonicalUrl,
-  ogImage = "/og-image.png",
+  ogImage = "/og-image.png"
 }: MetaTagsProps) => {
   return (
     <Helmet>
@@ -22,18 +22,21 @@ const MetaTags = ({
       {/* Canonical URL */}
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
       
-      {/* Open Graph Tags */}
+      {/* Open Graph / Facebook */}
+      <meta property="og:type" content="website" />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta property="og:type" content="website" />
       {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
-      <meta property="og:image" content={ogImage} />
+      {ogImage && <meta property="og:image" content={ogImage} />}
       
-      {/* Twitter Tags */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={ogImage} />
+      {/* Twitter */}
+      <meta property="twitter:card" content="summary_large_image" />
+      <meta property="twitter:title" content={title} />
+      <meta property="twitter:description" content={description} />
+      {ogImage && <meta property="twitter:image" content={ogImage} />}
+      
+      {/* Sitemap reference */}
+      <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     </Helmet>
   );
 };
