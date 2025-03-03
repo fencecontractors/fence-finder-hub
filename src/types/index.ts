@@ -1,3 +1,4 @@
+
 export interface Contractor {
   title: string;
   link: string;
@@ -18,6 +19,7 @@ export interface Contractor {
   unique_id: string;
   geohash: string;
   neighbors: string[];
+  local_image_path?: string; // New field for local image path
 }
 
 export type FenceContractor = Contractor;

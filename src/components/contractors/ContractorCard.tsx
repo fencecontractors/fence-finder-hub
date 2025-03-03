@@ -11,22 +11,34 @@ interface ContractorCardProps {
 
 const ContractorCard = ({ contractor }: ContractorCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const stateUrl = formatStateForUrl(contractor.state);
   const cityUrl = formatCityForUrl(contractor.city);
   const detailUrl = `/contractors/${stateUrl}/${cityUrl}/${contractor.unique_id}`;
+  
+  // Use local image path if available, otherwise use the updated_image
+  const imageSrc = contractor.local_image_path 
+    ? `/${contractor.unique_id}.jpg` 
+    : imageError 
+      ? contractor.photo_url 
+      : contractor.updated_image;
 
   return (
     <div className="contractor-card overflow-hidden">
       <Link to={detailUrl} className="block">
         <div className={`relative h-48 w-full ${!imageLoaded ? 'image-shimmer' : ''}`}>
           <img
-            src={contractor.updated_image}
+            src={imageSrc}
             alt={generateContractorImageAlt(contractor)}
             className={`h-full w-full object-cover transition-opacity duration-300 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             onLoad={() => setImageLoaded(true)}
+            onError={() => {
+              setImageError(true);
+              setImageLoaded(true);
+            }}
           />
         </div>
       </Link>

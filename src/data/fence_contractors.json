@@ -19,7 +19,8 @@
     "image_downloaded": true,
     "unique_id": "fence_masters_fw",
     "geohash": "9vf9z5urg120",
-    "neighbors": ["premium_fences_fw", "all_star_fencing", "texas_fence_co"]
+    "neighbors": ["premium_fences_fw", "all_star_fencing", "texas_fence_co"],
+    "local_image_path": "fence_masters_fw.jpg"
   },
   {
     "title": "Premium Fences",
@@ -40,7 +41,8 @@
     "image_downloaded": true,
     "unique_id": "premium_fences_fw",
     "geohash": "9vf9z1urh890",
-    "neighbors": ["fence_masters_fw", "all_star_fencing", "texas_fence_co"]
+    "neighbors": ["fence_masters_fw", "all_star_fencing", "texas_fence_co"],
+    "local_image_path": "premium_fences_fw.jpg"
   },
   {
     "title": "All Star Fencing",
@@ -61,7 +63,8 @@
     "image_downloaded": true,
     "unique_id": "all_star_fencing",
     "geohash": "9vf9z7urt456",
-    "neighbors": ["fence_masters_fw", "premium_fences_fw", "texas_fence_co"]
+    "neighbors": ["fence_masters_fw", "premium_fences_fw", "texas_fence_co"],
+    "local_image_path": "all_star_fencing.jpg"
   },
   {
     "title": "Texas Fence Co",
@@ -82,7 +85,8 @@
     "image_downloaded": true,
     "unique_id": "texas_fence_co",
     "geohash": "9vf9z9urs789",
-    "neighbors": ["fence_masters_fw", "premium_fences_fw", "all_star_fencing"]
+    "neighbors": ["fence_masters_fw", "premium_fences_fw", "all_star_fencing"],
+    "local_image_path": "texas_fence_co.jpg"
   },
   {
     "title": "Houston Fence Pros",
@@ -103,7 +107,8 @@
     "image_downloaded": true,
     "unique_id": "houston_fence_pros",
     "geohash": "9vd77suqp123",
-    "neighbors": ["bayou_fencing", "quality_fence_houston"]
+    "neighbors": ["bayou_fencing", "quality_fence_houston"],
+    "local_image_path": "houston_fence_pros.jpg"
   },
   {
     "title": "Bayou Fencing",
@@ -124,7 +129,8 @@
     "image_downloaded": true,
     "unique_id": "bayou_fencing",
     "geohash": "9vd77tuqr456",
-    "neighbors": ["houston_fence_pros", "quality_fence_houston"]
+    "neighbors": ["houston_fence_pros", "quality_fence_houston"],
+    "local_image_path": "bayou_fencing.jpg"
   },
   {
     "title": "Quality Fence Houston",
@@ -145,7 +151,8 @@
     "image_downloaded": true,
     "unique_id": "quality_fence_houston",
     "geohash": "9vd77puqs789",
-    "neighbors": ["houston_fence_pros", "bayou_fencing"]
+    "neighbors": ["houston_fence_pros", "bayou_fencing"],
+    "local_image_path": "quality_fence_houston.jpg"
   },
   {
     "title": "Phoenix Fence Solutions",
@@ -166,7 +173,8 @@
     "image_downloaded": true,
     "unique_id": "phoenix_fence_solutions",
     "geohash": "9t9z7suqp123",
-    "neighbors": ["desert_fencing_az", "sunbelt_fence_company"]
+    "neighbors": ["desert_fencing_az", "sunbelt_fence_company"],
+    "local_image_path": "phoenix_fence_solutions.jpg"
   },
   {
     "title": "Desert Fencing AZ",
@@ -187,7 +195,8 @@
     "image_downloaded": true,
     "unique_id": "desert_fencing_az",
     "geohash": "9t9z7suqr456",
-    "neighbors": ["phoenix_fence_solutions", "sunbelt_fence_company"]
+    "neighbors": ["phoenix_fence_solutions", "sunbelt_fence_company"],
+    "local_image_path": "desert_fencing_az.jpg"
   },
   {
     "title": "Sunbelt Fence Company",
@@ -208,6 +217,7 @@
     "image_downloaded": true,
     "unique_id": "sunbelt_fence_company",
     "geohash": "9t9z7suqs789",
-    "neighbors": ["phoenix_fence_solutions", "desert_fencing_az"]
+    "neighbors": ["phoenix_fence_solutions", "desert_fencing_az"],
+    "local_image_path": "sunbelt_fence_company.jpg"
   }
 ]

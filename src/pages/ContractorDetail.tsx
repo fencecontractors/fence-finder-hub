@@ -15,6 +15,7 @@ const ContractorDetail = () => {
   const { data: contractor, isLoading: isLoadingContractor } = useContractor(id || "");
   const [neighborIds, setNeighborIds] = useState<string[]>([]);
   const { data: neighborContractors = [], isLoading: isLoadingNeighbors } = useNeighboringContractors(neighborIds);
+  const [imageError, setImageError] = useState(false);
   
   useEffect(() => {
     if (contractor?.neighbors) {
@@ -49,12 +50,19 @@ const ContractorDetail = () => {
     );
   }
 
+  // Get appropriate image source
+  const imageSrc = contractor.local_image_path 
+    ? `/${contractor.unique_id}.jpg` 
+    : imageError 
+      ? contractor.photo_url 
+      : contractor.updated_image;
+
   // JSON-LD structured data for SEO
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": contractor.title,
-    "image": contractor.updated_image,
+    "image": imageSrc,
     "telephone": contractor.phone,
     "address": {
       "@type": "PostalAddress",
@@ -103,9 +111,10 @@ const ContractorDetail = () => {
               
               <div className="mb-6">
                 <img 
-                  src={contractor.updated_image} 
+                  src={imageSrc} 
                   alt={`${contractor.title} - Fence contractor in ${contractor.city}, ${contractor.state}`}
                   className="w-full h-auto object-cover rounded-lg"
+                  onError={() => setImageError(true)}
                 />
               </div>
               
@@ -180,29 +189,40 @@ const ContractorDetail = () => {
               <div className="bg-card rounded-xl shadow-sm p-6 border">
                 <h2 className="text-xl font-bold mb-4">Nearby Contractors</h2>
                 <div className="space-y-4">
-                  {neighborContractors.map(neighbor => (
-                    <Card key={neighbor.unique_id} className="p-4 hover:border-primary transition-colors">
-                      <Link to={`/contractors/${state}/${city}/${neighbor.unique_id}`}>
-                        <div className="flex items-start space-x-3">
-                          <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
-                            <img 
-                              src={neighbor.photo_url} 
-                              alt={neighbor.title}
-                              className="h-full w-full object-cover"
-                            />
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-sm line-clamp-1">{neighbor.title}</h3>
-                            <div className="flex items-center mt-1">
-                              <Star className="h-3.5 w-3.5 text-yellow-400 mr-1" fill="currentColor" />
-                              <span className="text-xs font-medium mr-1">{neighbor.stars}</span>
-                              <span className="text-xs text-muted-foreground">({neighbor.reviews})</span>
+                  {neighborContractors.map(neighbor => {
+                    // Get appropriate image source for neighbor
+                    const neighborImageSrc = neighbor.local_image_path 
+                      ? `/${neighbor.unique_id}.jpg` 
+                      : neighbor.photo_url;
+                    
+                    return (
+                      <Card key={neighbor.unique_id} className="p-4 hover:border-primary transition-colors">
+                        <Link to={`/contractors/${state}/${city}/${neighbor.unique_id}`}>
+                          <div className="flex items-start space-x-3">
+                            <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
+                              <img 
+                                src={neighborImageSrc} 
+                                alt={neighbor.title}
+                                className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  // Fallback to photo_url if local image fails
+                                  (e.target as HTMLImageElement).src = neighbor.photo_url;
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <h3 className="font-medium text-sm line-clamp-1">{neighbor.title}</h3>
+                              <div className="flex items-center mt-1">
+                                <Star className="h-3.5 w-3.5 text-yellow-400 mr-1" fill="currentColor" />
+                                <span className="text-xs font-medium mr-1">{neighbor.stars}</span>
+                                <span className="text-xs text-muted-foreground">({neighbor.reviews})</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Link>
-                    </Card>
-                  ))}
+                        </Link>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             )}
