@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
@@ -9,6 +8,7 @@ import { Loader2, Save, Send } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BlogPost } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { addBlogPost } from "@/data";
 import { 
   Dialog,
   DialogContent,
@@ -104,7 +104,6 @@ const AdminBlogGenerator = () => {
       if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
         content = data.candidates[0].content.parts[0].text;
         
-        // Clean up markdown content if wrapped in code blocks
         if (content.startsWith("```markdown") || content.startsWith("```md")) {
           content = content.replace(/^```markdown\n|^```md\n|```$/g, "");
         }
@@ -112,7 +111,6 @@ const AdminBlogGenerator = () => {
         throw new Error("Unexpected response format from the API");
       }
       
-      // Extract title from markdown (# Title format)
       if (!title && content.includes("# ")) {
         const titleMatch = content.match(/# (.*?)(\n|$)/);
         if (titleMatch && titleMatch[1]) {
@@ -127,13 +125,11 @@ const AdminBlogGenerator = () => {
         }
       }
       
-      // Extract meta description if available
       if (!metaDescription && content.includes("Meta Description:")) {
         const metaSection = content.split("Meta Description:")[1].split("\n")[0];
         setMetaDescription(metaSection.trim());
       }
       
-      // Extract tags/keywords if available
       if (!tags && content.includes("Keywords:")) {
         const keywordsSection = content.split("Keywords:")[1].split("\n")[0];
         setTags(keywordsSection.trim());
@@ -170,9 +166,10 @@ const AdminBlogGenerator = () => {
     setIsSaving(true);
     
     try {
-      const tagArray = tags.split(",").map(tag => tag.trim());
+      const tagArray = tags.split(",").map(tag => tag.trim()).filter(tag => tag !== "");
       
-      const newBlogPost: Partial<BlogPost> = {
+      const newBlogPost: BlogPost = {
+        id: "",
         title,
         slug: blogSlug,
         content: generatedContent,
@@ -184,6 +181,8 @@ const AdminBlogGenerator = () => {
       };
 
       console.log("Saving blog post:", newBlogPost);
+      
+      const savedPost = addBlogPost(newBlogPost);
       
       toast({
         title: "Blog post saved",

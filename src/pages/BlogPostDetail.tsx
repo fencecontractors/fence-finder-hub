@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { format } from "date-fns";
 import { ChevronLeft } from "lucide-react";
@@ -7,6 +7,41 @@ import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/layout/PageLayout";
 import { useBlogPost } from "@/data";
 import { Textarea } from "@/components/ui/textarea";
+
+// Function to convert markdown to HTML
+const markdownToHtml = (markdown: string): string => {
+  return markdown
+    // Convert headings
+    .replace(/^## (.*?)$/gm, '<h2>$1</h2>')
+    .replace(/^### (.*?)$/gm, '<h3>$1</h3>')
+    .replace(/^#### (.*?)$/gm, '<h4>$1</h4>')
+    // Convert bold and italic
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Convert links
+    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-primary hover:underline">$1</a>')
+    // Convert unordered lists (must be done before paragraph conversion)
+    .replace(/^[\*\-] (.*?)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*?<\/li>(\n|$))+/g, '<ul class="list-disc pl-6 my-4">$&</ul>')
+    // Convert ordered lists
+    .replace(/^\d+\. (.*?)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*?<\/li>(\n|$))+/g, '<ol class="list-decimal pl-6 my-4">$&</ol>')
+    // Convert paragraphs (any line not starting with a special character)
+    .replace(/^(?!<h|<ul|<ol|<li|<\/|$)(.*?)$/gm, '<p class="my-4">$1</p>')
+    // Convert images
+    .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="my-6 rounded-lg w-full">')
+    // Convert blockquotes
+    .replace(/^> (.*?)$/gm, '<blockquote class="border-l-4 border-primary pl-4 italic my-4">$1</blockquote>')
+    // Convert code blocks
+    .replace(/```(.*?)\n([\s\S]*?)```/g, '<pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>$2</code></pre>')
+    // Convert inline code
+    .replace(/`(.*?)`/g, '<code class="bg-muted px-1 py-0.5 rounded">$1</code>')
+    // Add id attributes to headings for TOC links
+    .replace(/<h2>(.*?)<\/h2>/g, '<h2 id="$1" class="text-2xl font-bold mt-8 mb-4">$1</h2>')
+    .replace(/<h3>(.*?)<\/h3>/g, '<h3 id="$1" class="text-xl font-bold mt-6 mb-3">$1</h3>')
+    // Preserve line breaks
+    .replace(/\n\n/g, '<br>');
+};
 
 const BlogPostDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -81,33 +116,7 @@ const BlogPostDetail = () => {
         </div>
         
         <div className="prose prose-lg max-w-none">
-          {/* Render content as HTML or Markdown */}
-          <div dangerouslySetInnerHTML={{ __html: 
-            // Basic markdown to HTML conversion for display
-            post.content
-              // Convert headings
-              .replace(/## (.*?)(\n|$)/g, '<h2>$1</h2>')
-              .replace(/### (.*?)(\n|$)/g, '<h3>$1</h3>')
-              .replace(/#### (.*?)(\n|$)/g, '<h4>$1</h4>')
-              // Convert bold and italic
-              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-              .replace(/\*(.*?)\*/g, '<em>$1</em>')
-              // Convert links
-              .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
-              // Convert lists
-              .replace(/^\- (.*?)$/gm, '<li>$1</li>')
-              .replace(/(<li>.*?<\/li>(\n|$))+/g, '<ul>$&</ul>')
-              .replace(/^\d+\. (.*?)$/gm, '<li>$1</li>')
-              .replace(/(<li>.*?<\/li>(\n|$))+/g, '<ol>$&</ol>')
-              // Convert paragraphs (any line not starting with a special character)
-              .replace(/^(?!<h|<ul|<ol|<li|<\/|$)(.*?)$/gm, '<p>$1</p>')
-              // Convert images
-              .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="my-4 rounded-lg">')
-              // Convert blockquotes
-              .replace(/^> (.*?)$/gm, '<blockquote>$1</blockquote>')
-              // Line breaks
-              .replace(/\n\n/g, '<br>')
-          }} />
+          <div dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }} />
         </div>
         
         {post.tags && post.tags.length > 0 && (

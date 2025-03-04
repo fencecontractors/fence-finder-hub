@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Contractor, LocationData, BlogPost } from "../types";
 import contractorsData from "./fence_contractors.json";
@@ -6,7 +5,21 @@ import blogPostsData from "./blog_posts.json";
 
 // Export raw data for direct access
 export const fenceContractors = contractorsData as Contractor[];
-export const blogPosts = blogPostsData as BlogPost[];
+export let blogPosts = blogPostsData as BlogPost[];
+
+// Function to add a new blog post (for admin use)
+export const addBlogPost = (post: BlogPost) => {
+  // Add a unique ID to the post (using timestamp for simplicity)
+  const postWithId = {
+    ...post,
+    id: String(blogPosts.length + 1)
+  };
+  
+  // Add the new post to the beginning of the array
+  blogPosts = [postWithId, ...blogPosts];
+  
+  return postWithId;
+};
 
 // Utility to load all contractors
 export const useContractors = () => {
@@ -121,7 +134,7 @@ export const useBlogPosts = () => {
     queryKey: ["blogPosts"],
     queryFn: async (): Promise<BlogPost[]> => {
       // In a real app, this would be an API call
-      return blogPostsData as BlogPost[];
+      return blogPosts;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -132,8 +145,7 @@ export const useBlogPost = (slug: string) => {
   return useQuery({
     queryKey: ["blogPost", slug],
     queryFn: async (): Promise<BlogPost | undefined> => {
-      const posts = blogPostsData as BlogPost[];
-      return posts.find((post) => post.slug === slug);
+      return blogPosts.find((post) => post.slug === slug);
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!slug, // Only run query if slug is provided
