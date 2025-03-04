@@ -6,6 +6,7 @@ import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/layout/PageLayout";
 import { useBlogPost } from "@/data";
+import { Textarea } from "@/components/ui/textarea";
 
 const BlogPostDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -80,8 +81,33 @@ const BlogPostDetail = () => {
         </div>
         
         <div className="prose prose-lg max-w-none">
-          {/* Render content as HTML */}
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          {/* Render content as HTML or Markdown */}
+          <div dangerouslySetInnerHTML={{ __html: 
+            // Basic markdown to HTML conversion for display
+            post.content
+              // Convert headings
+              .replace(/## (.*?)(\n|$)/g, '<h2>$1</h2>')
+              .replace(/### (.*?)(\n|$)/g, '<h3>$1</h3>')
+              .replace(/#### (.*?)(\n|$)/g, '<h4>$1</h4>')
+              // Convert bold and italic
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*(.*?)\*/g, '<em>$1</em>')
+              // Convert links
+              .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+              // Convert lists
+              .replace(/^\- (.*?)$/gm, '<li>$1</li>')
+              .replace(/(<li>.*?<\/li>(\n|$))+/g, '<ul>$&</ul>')
+              .replace(/^\d+\. (.*?)$/gm, '<li>$1</li>')
+              .replace(/(<li>.*?<\/li>(\n|$))+/g, '<ol>$&</ol>')
+              // Convert paragraphs (any line not starting with a special character)
+              .replace(/^(?!<h|<ul|<ol|<li|<\/|$)(.*?)$/gm, '<p>$1</p>')
+              // Convert images
+              .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="my-4 rounded-lg">')
+              // Convert blockquotes
+              .replace(/^> (.*?)$/gm, '<blockquote>$1</blockquote>')
+              // Line breaks
+              .replace(/\n\n/g, '<br>')
+          }} />
         </div>
         
         {post.tags && post.tags.length > 0 && (

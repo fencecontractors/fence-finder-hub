@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
@@ -55,15 +56,15 @@ const AdminBlogGenerator = () => {
         The blog post should include:
         1. An engaging title (if one isn't already provided)
         2. A table of contents
-        3. Well-structured content with proper headings (H2, H3)
+        3. Well-structured content with proper headings (## for H2, ### for H3)
         4. Key takeaways section
         5. Strategic use of the following keywords throughout: ${keywords}
         6. Suggestions for internal links (placeholder URLs are fine)
         7. A meta description optimized for SEO
         
-        Format the content in HTML with proper semantic tags (<h2>, <h3>, <p>, <ul>, <ol>, <blockquote>, etc.).
+        Format the content in Markdown with proper semantic structure.
         Make the content comprehensive, informative, and at least 1500 words.
-        Include placeholder suggestions for where images or multimedia could be added.
+        Include placeholder suggestions for where images or multimedia could be added using ![Alt text](image-url) format.
         
         For the author bio, use: "${authorName}"
       `;
@@ -102,26 +103,37 @@ const AdminBlogGenerator = () => {
       let content;
       if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
         content = data.candidates[0].content.parts[0].text;
+        
+        // Clean up markdown content if wrapped in code blocks
+        if (content.startsWith("```markdown") || content.startsWith("```md")) {
+          content = content.replace(/^```markdown\n|^```md\n|```$/g, "");
+        }
       } else {
         throw new Error("Unexpected response format from the API");
       }
       
-      if (!title && content.includes("<h1>") && content.includes("</h1>")) {
-        const extractedTitle = content.split("<h1>")[1].split("</h1>")[0];
-        setTitle(extractedTitle);
-        
-        const generatedSlug = extractedTitle
-          .toLowerCase()
-          .replace(/[^\w\s]/gi, "")
-          .replace(/\s+/g, "-");
-        setBlogSlug(generatedSlug);
+      // Extract title from markdown (# Title format)
+      if (!title && content.includes("# ")) {
+        const titleMatch = content.match(/# (.*?)(\n|$)/);
+        if (titleMatch && titleMatch[1]) {
+          const extractedTitle = titleMatch[1].trim();
+          setTitle(extractedTitle);
+          
+          const generatedSlug = extractedTitle
+            .toLowerCase()
+            .replace(/[^\w\s]/gi, "")
+            .replace(/\s+/g, "-");
+          setBlogSlug(generatedSlug);
+        }
       }
       
+      // Extract meta description if available
       if (!metaDescription && content.includes("Meta Description:")) {
         const metaSection = content.split("Meta Description:")[1].split("\n")[0];
         setMetaDescription(metaSection.trim());
       }
       
+      // Extract tags/keywords if available
       if (!tags && content.includes("Keywords:")) {
         const keywordsSection = content.split("Keywords:")[1].split("\n")[0];
         setTags(keywordsSection.trim());
@@ -305,15 +317,14 @@ const AdminBlogGenerator = () => {
               </div>
               
               <div>
-                <label className="block mb-2 font-medium">Blog Content</label>
+                <label className="block mb-2 font-medium">Blog Content (Markdown)</label>
                 <div className="border rounded-md p-4 bg-white min-h-[300px]">
-                  <div 
-                    ref={contentRef} 
-                    className="prose prose-sm max-w-none"
-                    contentEditable 
-                    suppressContentEditableWarning 
-                    onBlur={(e) => setGeneratedContent(e.currentTarget.innerHTML)}
-                    dangerouslySetInnerHTML={{ __html: generatedContent }}
+                  <Textarea
+                    value={generatedContent}
+                    onChange={(e) => setGeneratedContent(e.target.value)}
+                    placeholder="Your blog content in Markdown format"
+                    rows={20}
+                    className="w-full font-mono text-sm"
                   />
                 </div>
               </div>
