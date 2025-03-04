@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
@@ -9,9 +8,16 @@ import { Loader2, Save, Send } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BlogPost } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const GEMINI_API_KEY = "AIzaSyDZ6vhb4K-SOkc9NKseRS88uO2dkfIV_VU";
-const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent";
 
 const AdminBlogGenerator = () => {
   const [keywords, setKeywords] = useState("");
@@ -24,6 +30,8 @@ const AdminBlogGenerator = () => {
   const [blogImage, setBlogImage] = useState("");
   const [tags, setTags] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [showApiErrorDialog, setShowApiErrorDialog] = useState(false);
+  const [apiErrorMessage, setApiErrorMessage] = useState("");
   const contentRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -77,7 +85,6 @@ const AdminBlogGenerator = () => {
           ],
           generationConfig: {
             temperature: 0.7,
-            topK: 40,
             topP: 0.95,
             maxOutputTokens: 8192,
           },
@@ -87,17 +94,22 @@ const AdminBlogGenerator = () => {
       const data = await response.json();
       
       if (data.error) {
+        setApiErrorMessage(data.error.message || "Failed to generate content");
+        setShowApiErrorDialog(true);
         throw new Error(data.error.message || "Failed to generate content");
       }
 
-      const content = data.candidates[0].content.parts[0].text;
+      let content;
+      if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+        content = data.candidates[0].content.parts[0].text;
+      } else {
+        throw new Error("Unexpected response format from the API");
+      }
       
-      // Extract title if not already set
       if (!title && content.includes("<h1>") && content.includes("</h1>")) {
         const extractedTitle = content.split("<h1>")[1].split("</h1>")[0];
         setTitle(extractedTitle);
         
-        // Generate slug from title
         const generatedSlug = extractedTitle
           .toLowerCase()
           .replace(/[^\w\s]/gi, "")
@@ -105,13 +117,11 @@ const AdminBlogGenerator = () => {
         setBlogSlug(generatedSlug);
       }
       
-      // Extract meta description if not already set
       if (!metaDescription && content.includes("Meta Description:")) {
         const metaSection = content.split("Meta Description:")[1].split("\n")[0];
         setMetaDescription(metaSection.trim());
       }
       
-      // Extract tags if not already set
       if (!tags && content.includes("Keywords:")) {
         const keywordsSection = content.split("Keywords:")[1].split("\n")[0];
         setTags(keywordsSection.trim());
@@ -148,7 +158,6 @@ const AdminBlogGenerator = () => {
     setIsSaving(true);
     
     try {
-      // Format tags as an array
       const tagArray = tags.split(",").map(tag => tag.trim());
       
       const newBlogPost: Partial<BlogPost> = {
@@ -162,8 +171,6 @@ const AdminBlogGenerator = () => {
         tags: tagArray,
       };
 
-      // In a real app, this would be an API call to save to a database
-      // For demo purposes, we're logging to console
       console.log("Saving blog post:", newBlogPost);
       
       toast({
@@ -171,7 +178,6 @@ const AdminBlogGenerator = () => {
         description: "Your blog post has been published successfully.",
       });
       
-      // Navigate to the blog post after a short delay
       setTimeout(() => {
         navigate(`/blog/${blogSlug}`);
       }, 1500);
@@ -185,6 +191,10 @@ const AdminBlogGenerator = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const closeApiErrorDialog = () => {
+    setShowApiErrorDialog(false);
   };
 
   return (
@@ -328,6 +338,30 @@ const AdminBlogGenerator = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        <Dialog open={showApiErrorDialog} onOpenChange={setShowApiErrorDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>API Error</DialogTitle>
+              <DialogDescription>
+                <div className="mt-2 text-red-500">
+                  {apiErrorMessage}
+                </div>
+                <div className="mt-4 text-sm text-gray-600">
+                  <p>The Google Gemini API may have changed or the API key may no longer be valid. Please check:</p>
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>The API endpoint and version</li>
+                    <li>Your API key validity</li>
+                    <li>The request payload format</li>
+                  </ul>
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end mt-4">
+              <Button onClick={closeApiErrorDialog}>Close</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </PageLayout>
   );
