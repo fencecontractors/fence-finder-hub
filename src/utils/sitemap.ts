@@ -9,37 +9,57 @@ interface SitemapUrl {
   priority?: number;
 }
 
+/**
+ * Generates an XML sitemap for the website
+ * @param baseUrl - The base URL of the website
+ * @returns XML string representing the sitemap
+ */
 export const generateSitemap = (baseUrl: string): string => {
   const urls: SitemapUrl[] = [];
   const today = new Date().toISOString().split('T')[0];
   
   // Add static pages
-  urls.push({
-    loc: `${baseUrl}/`,
-    lastmod: today,
-    changefreq: 'weekly',
-    priority: 1.0
+  const staticPages = [
+    { path: "/", priority: 1.0, changefreq: 'weekly' as const },
+    { path: "/contractors", priority: 0.9, changefreq: 'weekly' as const },
+    { path: "/blog", priority: 0.8, changefreq: 'weekly' as const },
+  ];
+  
+  staticPages.forEach(page => {
+    urls.push({
+      loc: `${baseUrl}${page.path}`,
+      lastmod: today,
+      changefreq: page.changefreq,
+      priority: page.priority
+    });
   });
   
-  urls.push({
-    loc: `${baseUrl}/contractors`,
-    lastmod: today,
-    changefreq: 'weekly',
-    priority: 0.9
-  });
+  // Cache data to avoid repeated calculations
+  const contractors = fenceContractors as Contractor[];
   
-  urls.push({
-    loc: `${baseUrl}/blog`,
-    lastmod: today,
-    changefreq: 'weekly',
-    priority: 0.8
+  // Create efficient maps for lookups
+  const stateMap = new Map<string, Set<string>>();
+  
+  // Process contractors once
+  contractors.forEach(c => {
+    // Add state if not exists
+    if (!stateMap.has(c.state)) {
+      stateMap.set(c.state, new Set<string>());
+    }
+    // Add city to state
+    stateMap.get(c.state)?.add(c.city);
+    
+    // Add contractor detail page
+    urls.push({
+      loc: `${baseUrl}/contractors/${c.state.toLowerCase().replace(/\s+/g, '-')}/${c.city.toLowerCase().replace(/\s+/g, '-')}/${c.unique_id}`,
+      lastmod: today,
+      changefreq: 'monthly',
+      priority: 0.5
+    });
   });
   
   // Add state pages
-  const contractors = fenceContractors as Contractor[];
-  const states = [...new Set(contractors.map(c => c.state))];
-  
-  states.forEach(state => {
+  stateMap.forEach((cities, state) => {
     urls.push({
       loc: `${baseUrl}/contractors/${state.toLowerCase().replace(/\s+/g, '-')}`,
       lastmod: today,
@@ -48,29 +68,13 @@ export const generateSitemap = (baseUrl: string): string => {
     });
     
     // Add city pages
-    const citiesInState = [...new Set(
-      contractors
-        .filter(c => c.state === state)
-        .map(c => c.city)
-    )];
-    
-    citiesInState.forEach(city => {
+    cities.forEach(city => {
       urls.push({
         loc: `${baseUrl}/contractors/${state.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}`,
         lastmod: today,
         changefreq: 'weekly',
         priority: 0.6
       });
-    });
-  });
-  
-  // Add contractor detail pages
-  contractors.forEach(contractor => {
-    urls.push({
-      loc: `${baseUrl}/contractors/${contractor.state.toLowerCase().replace(/\s+/g, '-')}/${contractor.city.toLowerCase().replace(/\s+/g, '-')}/${contractor.unique_id}`,
-      lastmod: today,
-      changefreq: 'monthly',
-      priority: 0.5
     });
   });
   
@@ -85,20 +89,18 @@ export const generateSitemap = (baseUrl: string): string => {
     });
   });
   
-  // Generate XML
-  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+  // Generate XML - use template literals for better performance
+  const urlXmlItems = urls.map(url => `  <url>
+    <loc>${url.loc}</loc>
+    ${url.lastmod ? `    <lastmod>${url.lastmod}</lastmod>` : ''}
+    ${url.changefreq ? `    <changefreq>${url.changefreq}</changefreq>` : ''}
+    ${url.priority !== undefined ? `    <priority>${url.priority.toFixed(1)}</priority>` : ''}
+  </url>`).join('\n');
   
-  urls.forEach(url => {
-    xml += '  <url>\n';
-    xml += `    <loc>${url.loc}</loc>\n`;
-    if (url.lastmod) xml += `    <lastmod>${url.lastmod}</lastmod>\n`;
-    if (url.changefreq) xml += `    <changefreq>${url.changefreq}</changefreq>\n`;
-    if (url.priority !== undefined) xml += `    <priority>${url.priority.toFixed(1)}</priority>\n`;
-    xml += '  </url>\n';
-  });
-  
-  xml += '</urlset>';
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlXmlItems}
+</urlset>`;
   
   return xml;
 };

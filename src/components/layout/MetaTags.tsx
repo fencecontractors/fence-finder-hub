@@ -6,18 +6,21 @@ interface MetaTagsProps {
   description?: string;
   canonicalUrl?: string;
   ogImage?: string;
+  schema?: Record<string, any>;
 }
 
 const MetaTags = ({
   title = "Fence Contractors Directory",
   description = "Find the best fence contractors in your area",
   canonicalUrl,
-  ogImage = "/og-image.png"
+  ogImage = "/og-image.png",
+  schema
 }: MetaTagsProps) => {
   return (
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       
       {/* Canonical URL */}
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
@@ -35,8 +38,21 @@ const MetaTags = ({
       <meta property="twitter:description" content={description} />
       {ogImage && <meta property="twitter:image" content={ogImage} />}
       
+      {/* Performance & SEO best practices */}
+      <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
+      <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="theme-color" content="#0066FF" />
+      <meta name="format-detection" content="telephone=no" />
+      
+      {/* Preconnect to essential domains */}
+      <link rel="preconnect" href="https://rsms.me" />
+      <link rel="preconnect" href="https://applesocial.s3.amazonaws.com" />
+      
       {/* Sitemap reference */}
       <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+      
+      {/* Structured data / JSON-LD Schema */}
+      {schema && <script type="application/ld+json">{JSON.stringify(schema)}</script>}
     </Helmet>
   );
 };

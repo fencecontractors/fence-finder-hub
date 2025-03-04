@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+
+import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { MapPin, Phone, Globe, Star, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,11 +17,68 @@ const ContractorDetail = () => {
   const { data: neighborContractors = [], isLoading: isLoadingNeighbors } = useNeighboringContractors(neighborIds);
   const [imageError, setImageError] = useState(false);
   
+  // Set neighbor IDs when contractor data is loaded
   useEffect(() => {
     if (contractor?.neighbors) {
       setNeighborIds(contractor.neighbors);
     }
   }, [contractor]);
+
+  // Image source with fallback
+  const imageSrc = useMemo(() => {
+    if (!contractor) return '';
+    return contractor.local_image_path 
+      ? `/images/${contractor.unique_id}.jpg` 
+      : imageError 
+        ? contractor.photo_url 
+        : contractor.updated_image;
+  }, [contractor, imageError]);
+
+  // Generate schema for structured data
+  const schema = useMemo(() => {
+    if (!contractor) return null;
+    
+    return {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": contractor.title,
+      "image": imageSrc,
+      "telephone": contractor.phone,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": contractor.address,
+        "addressLocality": contractor.city,
+        "addressRegion": contractor.state
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": contractor.latitude,
+        "longitude": contractor.longitude
+      },
+      "url": contractor.website || window.location.href,
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": contractor.stars,
+        "reviewCount": contractor.reviews
+      }
+    };
+  }, [contractor, imageSrc]);
+
+  // Meta title and description
+  const metaTitle = useMemo(() => {
+    if (!contractor) return "Contractor Details | Fence Contractors Directory";
+    return `${contractor.title} - Fence Contractor in ${contractor.city}, ${contractor.state}`;
+  }, [contractor]);
+  
+  const metaDescription = useMemo(() => {
+    if (!contractor) return "Find detailed information about this fence contractor";
+    return `${contractor.title} provides fence services in ${contractor.city}, ${contractor.state}. Rated ${contractor.stars} stars from ${contractor.reviews} reviews. Contact at ${contractor.phone}.`;
+  }, [contractor]);
+  
+  const canonicalUrl = useMemo(() => {
+    if (!contractor || !state || !city || !id) return undefined;
+    return `${window.location.origin}/contractors/${state}/${city}/${id}`;
+  }, [contractor, state, city, id]);
 
   if (isLoadingContractor) {
     return (
@@ -49,41 +107,14 @@ const ContractorDetail = () => {
     );
   }
 
-  const imageSrc = contractor.local_image_path 
-    ? `/images/${contractor.unique_id}.jpg` 
-    : imageError 
-      ? contractor.photo_url 
-      : contractor.updated_image;
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": contractor.title,
-    "image": imageSrc,
-    "telephone": contractor.phone,
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": contractor.address,
-      "addressLocality": contractor.city,
-      "addressRegion": contractor.state
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": contractor.latitude,
-      "longitude": contractor.longitude
-    },
-    "url": contractor.website,
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": contractor.stars,
-      "reviewCount": contractor.reviews
-    }
-  };
-
   return (
-    <PageLayout>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      
+    <PageLayout
+      title={metaTitle}
+      description={metaDescription}
+      canonicalUrl={canonicalUrl}
+      ogImage={imageSrc}
+      schema={schema}
+    >
       <div className="page-container">
         <div className="flex items-center mb-8">
           <Button variant="ghost" size="sm" asChild className="mr-4">
@@ -111,6 +142,7 @@ const ContractorDetail = () => {
                   src={imageSrc} 
                   alt={`${contractor.title} - Fence contractor in ${contractor.city}, ${contractor.state}`}
                   className="w-full h-auto object-cover rounded-lg"
+                  loading="lazy"
                   onError={() => setImageError(true)}
                 />
               </div>
