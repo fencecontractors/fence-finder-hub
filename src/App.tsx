@@ -15,6 +15,7 @@ import BlogIndex from "./pages/BlogIndex";
 import BlogPostDetail from "./pages/BlogPostDetail";
 import SearchResults from "./pages/SearchResults";
 import Sitemap from "./pages/Sitemap";
+import AdminBlogGenerator from "./pages/AdminBlogGenerator";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,9 @@ const App = () => (
             
             {/* Sitemap Route */}
             <Route path="/sitemap.xml" element={<Sitemap />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin/blog-generator" element={<AdminBlogGenerator />} />
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />

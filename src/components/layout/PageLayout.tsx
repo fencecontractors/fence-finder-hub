@@ -1,5 +1,6 @@
 
 import { ReactNode, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import MetaTags from "./MetaTags";
@@ -21,6 +22,9 @@ const PageLayout = ({
   ogImage,
   schema
 }: PageLayoutProps) => {
+  const location = useLocation();
+  const isAdminPage = location.pathname.startsWith('/admin');
+  
   // Generate website schema if none is provided
   const generatedSchema = useMemo(() => {
     if (schema) return schema;
@@ -52,11 +56,11 @@ const PageLayout = ({
         ogImage={ogImage}
         schema={generatedSchema}
       />
-      <Header />
-      <main className="flex-grow">
+      {!isAdminPage && <Header />}
+      <main className={`flex-grow ${isAdminPage ? 'pt-4' : ''}`}>
         {children}
       </main>
-      <Footer />
+      {!isAdminPage && <Footer />}
     </div>
   );
 };
