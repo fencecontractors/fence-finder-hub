@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Contractor, LocationData, BlogPost } from "../types";
 import contractorsData from "./fence_contractors.json";
 import blogPostsData from "./blog_posts.json";
@@ -43,6 +43,22 @@ export const deleteBlogPost = (id: string) => {
   
   blogPosts.splice(index, 1);
   return id;
+};
+
+// Function to toggle the featured status of a contractor
+export const toggleContractorFeatured = (contractorId: string, featured: boolean): Contractor => {
+  const index = fenceContractors.findIndex(c => c.unique_id === contractorId);
+  
+  if (index === -1) {
+    throw new Error(`Contractor with ID ${contractorId} not found`);
+  }
+  
+  fenceContractors[index] = {
+    ...fenceContractors[index],
+    featured
+  };
+  
+  return fenceContractors[index];
 };
 
 // Utility to load all contractors
@@ -149,6 +165,34 @@ export const useNeighboringContractors = (neighborIds: string[]) => {
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: neighborIds.length > 0, // Only run query if neighborIds is provided
+  });
+};
+
+// Utility to get featured contractors
+export const useFeaturedContractors = () => {
+  return useQuery({
+    queryKey: ["contractors", "featured"],
+    queryFn: async (): Promise<Contractor[]> => {
+      const contractors = contractorsData as Contractor[];
+      return contractors.filter(contractor => contractor.featured === true);
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+// Utility to toggle featured status
+export const useToggleContractorFeatured = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ contractorId, featured }: { contractorId: string; featured: boolean }) => {
+      return Promise.resolve(toggleContractorFeatured(contractorId, featured));
+    },
+    onSuccess: () => {
+      // Invalidate relevant queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["contractors"] });
+      queryClient.invalidateQueries({ queryKey: ["contractors", "featured"] });
+    },
   });
 };
 

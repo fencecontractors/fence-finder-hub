@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from "react";
-import { useContractors } from "@/data";
+import { useContractors, useToggleContractorFeatured } from "@/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Table, 
   TableBody, 
@@ -12,10 +13,12 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 import { 
   Search, 
   FileEdit, 
-  Eye
+  Eye,
+  Star
 } from "lucide-react";
 import { Contractor } from "@/types";
 import { Link } from "react-router-dom";
@@ -24,6 +27,8 @@ const ContractorManagement = () => {
   const { data: contractors = [], isLoading } = useContractors();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredContractors, setFilteredContractors] = useState<Contractor[]>([]);
+  const toggleFeatured = useToggleContractorFeatured();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (contractors.length > 0) {
@@ -38,6 +43,27 @@ const ContractorManagement = () => {
       setFilteredContractors(filtered);
     }
   }, [searchQuery, contractors]);
+
+  const handleToggleFeatured = (contractorId: string, isFeatured: boolean) => {
+    toggleFeatured.mutate(
+      { contractorId, featured: isFeatured },
+      {
+        onSuccess: () => {
+          toast({
+            title: isFeatured ? "Contractor marked as featured" : "Contractor removed from featured",
+            description: "The featured status has been updated successfully.",
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Error",
+            description: "Failed to update the featured status. Please try again.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -77,6 +103,7 @@ const ContractorManagement = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Location</TableHead>
                     <TableHead>Rating</TableHead>
+                    <TableHead>Featured</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -88,6 +115,16 @@ const ContractorManagement = () => {
                       </TableCell>
                       <TableCell>{contractor.city}, {contractor.state}</TableCell>
                       <TableCell>{contractor.stars} ★ ({contractor.reviews})</TableCell>
+                      <TableCell>
+                        <Checkbox
+                          checked={contractor.featured}
+                          onCheckedChange={(checked) => 
+                            handleToggleFeatured(contractor.unique_id, checked as boolean)
+                          }
+                          id={`featured-${contractor.unique_id}`}
+                          aria-label="Toggle featured"
+                        />
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="outline" size="sm" asChild>

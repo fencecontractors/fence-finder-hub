@@ -1,4 +1,3 @@
-
 export interface Contractor {
   title: string;
   link: string;
@@ -20,6 +19,7 @@ export interface Contractor {
   geohash: string;
   neighbors: string[];
   local_image_path?: string; // New field for local image path
+  featured?: boolean; // New field to mark a contractor as featured
 }
 
 export type FenceContractor = Contractor;

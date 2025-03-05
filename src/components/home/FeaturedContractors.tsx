@@ -1,24 +1,31 @@
 
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
-import { useContractors } from "@/data";
+import { ChevronRight, Star } from "lucide-react";
+import { useContractors, useFeaturedContractors } from "@/data";
 import ContractorsList from "@/components/contractors/ContractorsList";
 
 const FeaturedContractors = () => {
-  const { data: contractors, isLoading } = useContractors();
-
-  // Get top rated contractors (limit to 3)
-  const featuredContractors = contractors
-    ?.sort((a, b) => b.stars - a.stars || b.reviews - a.reviews)
-    .slice(0, 3);
+  const { data: allContractors, isLoading: isAllLoading } = useContractors();
+  const { data: featuredContractors, isLoading: isFeaturedLoading } = useFeaturedContractors();
+  
+  // If there are no explicitly featured contractors, fall back to top rated ones
+  const isLoading = isAllLoading || isFeaturedLoading;
+  const displayContractors = featuredContractors?.length 
+    ? featuredContractors 
+    : allContractors
+        ?.sort((a, b) => b.stars - a.stars || b.reviews - a.reviews)
+        .slice(0, 3);
 
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-end mb-10">
           <div>
-            <h2 className="section-title">Featured Contractors</h2>
-            <p className="section-subtitle">Top-rated fence contractors with excellent reviews and service</p>
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="section-title text-3xl font-bold">Featured Contractors</h2>
+              <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+            </div>
+            <p className="section-subtitle text-muted-foreground">Top-rated fence contractors with excellent reviews and service</p>
           </div>
           <Link 
             to="/contractors" 
@@ -45,8 +52,15 @@ const FeaturedContractors = () => {
           </div>
         )}
 
-        {!isLoading && featuredContractors && (
-          <ContractorsList contractors={featuredContractors} />
+        {!isLoading && displayContractors && (
+          <>
+            <ContractorsList contractors={displayContractors} />
+            {featuredContractors?.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center mt-4">
+                <em>Showing top-rated contractors. Visit the admin panel to mark contractors as featured.</em>
+              </p>
+            )}
+          </>
         )}
 
         <div className="mt-10 text-center md:hidden">

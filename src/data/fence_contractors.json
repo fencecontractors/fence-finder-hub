@@ -1,4 +1,3 @@
-
 [
   {
     "title": "Fence Masters",
@@ -20,7 +19,8 @@
     "unique_id": "fence_masters_fw",
     "geohash": "9vf9z5urg120",
     "neighbors": ["premium_fences_fw", "all_star_fencing", "texas_fence_co"],
-    "local_image_path": "fence_masters_fw.jpg"
+    "local_image_path": "fence_masters_fw.jpg",
+    "featured": true
   },
   {
     "title": "Premium Fences",
@@ -42,7 +42,8 @@
     "unique_id": "premium_fences_fw",
     "geohash": "9vf9z1urh890",
     "neighbors": ["fence_masters_fw", "all_star_fencing", "texas_fence_co"],
-    "local_image_path": "premium_fences_fw.jpg"
+    "local_image_path": "premium_fences_fw.jpg",
+    "featured": false
   },
   {
     "title": "All Star Fencing",
@@ -64,7 +65,8 @@
     "unique_id": "all_star_fencing",
     "geohash": "9vf9z7urt456",
     "neighbors": ["fence_masters_fw", "premium_fences_fw", "texas_fence_co"],
-    "local_image_path": "all_star_fencing.jpg"
+    "local_image_path": "all_star_fencing.jpg",
+    "featured": true
   },
   {
     "title": "Texas Fence Co",

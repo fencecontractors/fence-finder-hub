@@ -22,3 +22,12 @@ export const authenticateAdmin = (password: string): boolean => {
 export const logoutAdmin = (): void => {
   localStorage.removeItem(AUTH_STORAGE_KEY);
 };
+
+// Function to verify if user has admin rights before performing an action
+export const requireAdminAuth = <T>(action: () => T): T | never => {
+  if (!isAdminAuthenticated()) {
+    throw new Error("Unauthorized: Admin authentication required");
+  }
+  
+  return action();
+};
