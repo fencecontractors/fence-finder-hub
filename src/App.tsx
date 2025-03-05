@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+
+// Main Routes
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ContractorsIndex from "./pages/ContractorsIndex";
@@ -15,7 +17,14 @@ import BlogIndex from "./pages/BlogIndex";
 import BlogPostDetail from "./pages/BlogPostDetail";
 import SearchResults from "./pages/SearchResults";
 import Sitemap from "./pages/Sitemap";
-import AdminBlogGenerator from "./pages/AdminBlogGenerator";
+
+// Admin Routes
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import BlogManagement from "./pages/admin/blog/BlogManagement";
+import BlogEditor from "./pages/admin/blog/BlogEditor";
+import ContractorManagement from "./pages/admin/contractor/ContractorManagement";
 
 const queryClient = new QueryClient();
 
@@ -46,7 +55,14 @@ const App = () => (
             <Route path="/sitemap.xml" element={<Sitemap />} />
             
             {/* Admin Routes */}
-            <Route path="/admin/blog-generator" element={<AdminBlogGenerator />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="blogs" element={<BlogManagement />} />
+              <Route path="blogs/create" element={<BlogEditor />} />
+              <Route path="blogs/edit/:id" element={<BlogEditor />} />
+              <Route path="contractors" element={<ContractorManagement />} />
+            </Route>
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />

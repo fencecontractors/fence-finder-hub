@@ -7,7 +7,7 @@ import blogPostsData from "./blog_posts.json";
 export const fenceContractors = contractorsData as Contractor[];
 export let blogPosts = blogPostsData as BlogPost[];
 
-// Function to add a new blog post (for admin use)
+// Function to add a new blog post
 export const addBlogPost = (post: BlogPost) => {
   // Add a unique ID to the post (using timestamp for simplicity)
   const postWithId = {
@@ -19,6 +19,30 @@ export const addBlogPost = (post: BlogPost) => {
   blogPosts = [postWithId, ...blogPosts];
   
   return postWithId;
+};
+
+// Function to update an existing blog post
+export const updateBlogPost = (post: BlogPost) => {
+  const index = blogPosts.findIndex(p => p.id === post.id);
+  
+  if (index === -1) {
+    throw new Error(`Blog post with ID ${post.id} not found`);
+  }
+  
+  blogPosts[index] = post;
+  return post;
+};
+
+// Function to delete a blog post
+export const deleteBlogPost = (id: string) => {
+  const index = blogPosts.findIndex(post => post.id === id);
+  
+  if (index === -1) {
+    throw new Error(`Blog post with ID ${id} not found`);
+  }
+  
+  blogPosts.splice(index, 1);
+  return id;
 };
 
 // Utility to load all contractors
@@ -145,7 +169,7 @@ export const useBlogPost = (slug: string) => {
   return useQuery({
     queryKey: ["blogPost", slug],
     queryFn: async (): Promise<BlogPost | undefined> => {
-      return blogPosts.find((post) => post.slug === slug);
+      return blogPosts.find((post) => post.slug === slug || post.id === slug);
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
     enabled: !!slug, // Only run query if slug is provided
