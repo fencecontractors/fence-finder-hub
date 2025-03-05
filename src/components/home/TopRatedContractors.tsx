@@ -1,31 +1,27 @@
 
 import { Link } from "react-router-dom";
-import { ChevronRight, Star } from "lucide-react";
-import { useContractors, useFeaturedContractors } from "@/data";
+import { ChevronRight, Trophy } from "lucide-react";
+import { useContractors } from "@/data";
 import ContractorsList from "@/components/contractors/ContractorsList";
 
-const FeaturedContractors = () => {
-  const { data: allContractors, isLoading: isAllLoading } = useContractors();
-  const { data: featuredContractors, isLoading: isFeaturedLoading } = useFeaturedContractors();
+const TopRatedContractors = () => {
+  const { data: allContractors, isLoading } = useContractors();
   
-  // If there are no explicitly featured contractors, fall back to top rated ones
-  const isLoading = isAllLoading || isFeaturedLoading;
-  const displayContractors = featuredContractors?.length 
-    ? featuredContractors 
-    : allContractors
-        ?.sort((a, b) => b.stars - a.stars || b.reviews - a.reviews)
-        .slice(0, 3);
+  // Get the top 6 rated contractors
+  const topRatedContractors = allContractors
+    ?.sort((a, b) => b.stars - a.stars || b.reviews - a.reviews)
+    .slice(0, 6);
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-16 bg-gradient-to-b from-muted/30 to-background">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-end mb-10">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <h2 className="section-title text-3xl font-bold">Featured Contractors</h2>
-              <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+              <h2 className="section-title text-3xl font-bold">Top Rated Contractors</h2>
+              <Trophy className="h-5 w-5 text-amber-500" />
             </div>
-            <p className="section-subtitle text-muted-foreground">Top-rated fence contractors with excellent reviews and service</p>
+            <p className="section-subtitle text-muted-foreground">The highest-rated fence contractors based on customer reviews</p>
           </div>
           <Link 
             to="/contractors" 
@@ -38,7 +34,7 @@ const FeaturedContractors = () => {
 
         {isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="rounded-lg overflow-hidden border border-border/50">
                 <div className="h-48 w-full bg-muted animate-pulse" />
                 <div className="p-4 space-y-3">
@@ -52,15 +48,8 @@ const FeaturedContractors = () => {
           </div>
         )}
 
-        {!isLoading && displayContractors && (
-          <>
-            <ContractorsList contractors={displayContractors} />
-            {featuredContractors?.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center mt-4">
-                <em>Showing top-rated contractors. Visit the admin panel to mark contractors as featured.</em>
-              </p>
-            )}
-          </>
+        {!isLoading && topRatedContractors && (
+          <ContractorsList contractors={topRatedContractors} />
         )}
 
         <div className="mt-10 text-center md:hidden">
@@ -77,4 +66,4 @@ const FeaturedContractors = () => {
   );
 };
 
-export default FeaturedContractors;
+export default TopRatedContractors;

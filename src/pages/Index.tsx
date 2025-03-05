@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import FeaturedContractors from "@/components/home/FeaturedContractors";
+import TopRatedContractors from "@/components/home/TopRatedContractors";
 import PageLayout from "@/components/layout/PageLayout";
 
 const Index = () => {
@@ -62,12 +63,10 @@ const Index = () => {
       </section>
 
       {/* Featured Contractors Section */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Featured Contractors</h2>
-          <FeaturedContractors />
-        </div>
-      </section>
+      <FeaturedContractors />
+
+      {/* Top Rated Contractors Section */}
+      <TopRatedContractors />
 
       {/* How It Works Section */}
       <section className="py-16 bg-muted/30">
