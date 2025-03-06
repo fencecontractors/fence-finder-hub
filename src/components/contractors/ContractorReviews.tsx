@@ -12,12 +12,24 @@ const ContractorReviews = ({ reviews }: ContractorReviewsProps) => {
     return null;
   }
 
+  // Filter out duplicate reviews by creating a Map with reviewer_name + review_text as key
+  const uniqueReviewsMap = new Map();
+  reviews.forEach((review) => {
+    const key = `${review.reviewer_name}-${review.review_text}`;
+    if (!uniqueReviewsMap.has(key)) {
+      uniqueReviewsMap.set(key, review);
+    }
+  });
+  
+  // Convert the Map values back to an array
+  const uniqueReviews = Array.from(uniqueReviewsMap.values());
+
   return (
     <div className="bg-card rounded-xl shadow-sm p-6 border">
       <h2 className="text-2xl font-semibold mb-4">Customer Reviews</h2>
       
       <div className="space-y-4">
-        {reviews.map((review, index) => (
+        {uniqueReviews.map((review, index) => (
           <Card key={index} className="bg-muted/30">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
