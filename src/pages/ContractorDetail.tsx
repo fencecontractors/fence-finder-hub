@@ -1,9 +1,9 @@
-
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
 import ContractorHeader from "@/components/contractors/ContractorHeader";
 import ContractorInfo from "@/components/contractors/ContractorInfo";
+import ContractorReviews from "@/components/contractors/ContractorReviews";
 import LocationMapSection from "@/components/contractors/LocationMapSection";
 import NearbyContractors from "@/components/contractors/NearbyContractors";
 import { useContractor, useNeighboringContractors } from "@/data";
@@ -118,6 +118,10 @@ const ContractorDetail = () => {
               setImageError={setImageError}
             />
             <LocationMapSection contractor={contractor} />
+            
+            {contractor.reviewers && contractor.reviewers.length > 0 && (
+              <ContractorReviews reviews={contractor.reviewers} />
+            )}
           </div>
           
           <div className="space-y-8">
