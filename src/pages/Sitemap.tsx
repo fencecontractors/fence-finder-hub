@@ -11,6 +11,12 @@ const Sitemap = () => {
     const baseUrl = window.location.origin;
     const xml = generateSitemap(baseUrl);
     setSitemapXml(xml);
+    
+    // Set the content-type header for XML
+    const metaElement = document.createElement('meta');
+    metaElement.httpEquiv = 'Content-Type';
+    metaElement.content = 'text/xml; charset=utf-8';
+    document.head.appendChild(metaElement);
   }, []);
   
   return (

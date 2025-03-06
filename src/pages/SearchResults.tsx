@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Search, ArrowRight } from "lucide-react";
+import { Search, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageLayout from "@/components/layout/PageLayout";
@@ -10,11 +10,16 @@ import { useContractors } from "@/data";
 import { Contractor } from "@/types";
 import { formatStateForUrl, formatCityForUrl } from "@/utils";
 
+const RESULTS_PER_PAGE = 12;
+
 const SearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
   const [searchQuery, setSearchQuery] = useState(query);
   const [results, setResults] = useState<Contractor[]>([]);
+  const [displayedResults, setDisplayedResults] = useState<Contractor[]>([]);
+  const [page, setPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { data: contractors = [], isLoading } = useContractors();
   
   useEffect(() => {
@@ -31,14 +36,31 @@ const SearchResults = () => {
       );
       
       setResults(filteredResults);
+      setDisplayedResults(filteredResults.slice(0, RESULTS_PER_PAGE));
+      setPage(1);
     } else {
       setResults([]);
+      setDisplayedResults([]);
+      setPage(1);
     }
   }, [query, contractors]);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSearchParams({ q: searchQuery });
+  };
+
+  const loadMoreResults = () => {
+    setIsLoadingMore(true);
+    
+    // Simulate loading delay
+    setTimeout(() => {
+      const nextPage = page + 1;
+      const nextResults = results.slice(0, nextPage * RESULTS_PER_PAGE);
+      setDisplayedResults(nextResults);
+      setPage(nextPage);
+      setIsLoadingMore(false);
+    }, 500);
   };
   
   if (isLoading) {
@@ -82,9 +104,9 @@ const SearchResults = () => {
           </div>
         )}
         
-        {results.length > 0 && (
+        {displayedResults.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {results.map(contractor => (
+            {displayedResults.map(contractor => (
               <Link 
                 key={contractor.unique_id}
                 to={`/contractors/${formatStateForUrl(contractor.state)}/${formatCityForUrl(contractor.city)}/${contractor.unique_id}`}
@@ -92,6 +114,26 @@ const SearchResults = () => {
                 <ContractorCard contractor={contractor} />
               </Link>
             ))}
+          </div>
+        )}
+        
+        {displayedResults.length > 0 && displayedResults.length < results.length && (
+          <div className="mt-8 text-center">
+            <Button 
+              onClick={loadMoreResults} 
+              disabled={isLoadingMore}
+              variant="outline" 
+              size="lg"
+            >
+              {isLoadingMore ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                `Load More (${results.length - displayedResults.length} remaining)`
+              )}
+            </Button>
           </div>
         )}
         

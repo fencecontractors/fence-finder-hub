@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Contractor, LocationData, BlogPost } from "../types";
 import contractorsData from "./fence_contractors.json";
@@ -6,6 +7,14 @@ import blogPostsData from "./blog_posts.json";
 // Export raw data for direct access
 export const fenceContractors = contractorsData as Contractor[];
 export let blogPosts = blogPostsData as BlogPost[];
+
+// Function to update JSON data persistently (this is a simulation for a real API)
+const updateData = (type: 'blog' | 'contractor', data: any) => {
+  // In a real application, this would make an API call to update the server
+  // For this demo, we'll just log the update
+  console.log(`Data update for ${type}:`, data);
+  return data;
+};
 
 // Function to add a new blog post
 export const addBlogPost = (post: BlogPost) => {
@@ -17,6 +26,9 @@ export const addBlogPost = (post: BlogPost) => {
   
   // Add the new post to the beginning of the array
   blogPosts = [postWithId, ...blogPosts];
+  
+  // Update the JSON data (simulation)
+  updateData('blog', blogPosts);
   
   return postWithId;
 };
@@ -30,6 +42,10 @@ export const updateBlogPost = (post: BlogPost) => {
   }
   
   blogPosts[index] = post;
+  
+  // Update the JSON data (simulation)
+  updateData('blog', blogPosts);
+  
   return post;
 };
 
@@ -42,6 +58,10 @@ export const deleteBlogPost = (id: string) => {
   }
   
   blogPosts.splice(index, 1);
+  
+  // Update the JSON data (simulation)
+  updateData('blog', blogPosts);
+  
   return id;
 };
 
@@ -57,6 +77,9 @@ export const toggleContractorFeatured = (contractorId: string, featured: boolean
     ...fenceContractors[index],
     featured
   };
+  
+  // Update the JSON data (simulation)
+  updateData('contractor', fenceContractors);
   
   return fenceContractors[index];
 };

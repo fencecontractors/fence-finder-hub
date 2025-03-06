@@ -23,6 +23,7 @@ export const generateSitemap = (baseUrl: string): string => {
     { path: "/", priority: 1.0, changefreq: 'weekly' as const },
     { path: "/contractors", priority: 0.9, changefreq: 'weekly' as const },
     { path: "/blog", priority: 0.8, changefreq: 'weekly' as const },
+    { path: "/search", priority: 0.7, changefreq: 'weekly' as const },
   ];
   
   staticPages.forEach(page => {
@@ -50,8 +51,11 @@ export const generateSitemap = (baseUrl: string): string => {
     stateMap.get(c.state)?.add(c.city);
     
     // Add contractor detail page
+    const stateUrl = c.state.toLowerCase().replace(/\s+/g, '-');
+    const cityUrl = c.city.toLowerCase().replace(/\s+/g, '-');
+    
     urls.push({
-      loc: `${baseUrl}/contractors/${c.state.toLowerCase().replace(/\s+/g, '-')}/${c.city.toLowerCase().replace(/\s+/g, '-')}/${c.unique_id}`,
+      loc: `${baseUrl}/contractors/${stateUrl}/${cityUrl}/${c.unique_id}`,
       lastmod: today,
       changefreq: 'monthly',
       priority: 0.5
@@ -60,8 +64,10 @@ export const generateSitemap = (baseUrl: string): string => {
   
   // Add state pages
   stateMap.forEach((cities, state) => {
+    const stateUrl = state.toLowerCase().replace(/\s+/g, '-');
+    
     urls.push({
-      loc: `${baseUrl}/contractors/${state.toLowerCase().replace(/\s+/g, '-')}`,
+      loc: `${baseUrl}/contractors/${stateUrl}`,
       lastmod: today,
       changefreq: 'weekly',
       priority: 0.7
@@ -69,8 +75,10 @@ export const generateSitemap = (baseUrl: string): string => {
     
     // Add city pages
     cities.forEach(city => {
+      const cityUrl = city.toLowerCase().replace(/\s+/g, '-');
+      
       urls.push({
-        loc: `${baseUrl}/contractors/${state.toLowerCase().replace(/\s+/g, '-')}/${city.toLowerCase().replace(/\s+/g, '-')}`,
+        loc: `${baseUrl}/contractors/${stateUrl}/${cityUrl}`,
         lastmod: today,
         changefreq: 'weekly',
         priority: 0.6

@@ -1,3 +1,4 @@
+
 export interface Contractor {
   title: string;
   link: string;
@@ -20,6 +21,12 @@ export interface Contractor {
   neighbors: string[];
   local_image_path?: string; // New field for local image path
   featured?: boolean; // New field to mark a contractor as featured
+  reviewers?: Reviewer[]; // New field for reviews
+}
+
+export interface Reviewer {
+  reviewer_name: string;
+  review_text: string;
 }
 
 export type FenceContractor = Contractor;
