@@ -3,10 +3,20 @@ import { Link } from "react-router-dom";
 import { ChevronRight, Star } from "lucide-react";
 import { useContractors, useFeaturedContractors } from "@/data";
 import ContractorsList from "@/components/contractors/ContractorsList";
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const FeaturedContractors = () => {
+  const queryClient = useQueryClient();
   const { data: allContractors, isLoading: isAllLoading } = useContractors();
-  const { data: featuredContractors, isLoading: isFeaturedLoading } = useFeaturedContractors();
+  const { data: featuredContractors, isLoading: isFeaturedLoading, refetch } = useFeaturedContractors();
+  
+  // Force refetch on mount to ensure we have the latest data
+  useEffect(() => {
+    // Invalidate the featured contractors query to ensure we get fresh data
+    queryClient.invalidateQueries({ queryKey: ["contractors", "featured"] });
+    refetch();
+  }, [queryClient, refetch]);
   
   // If there are no explicitly featured contractors, fall back to top rated ones
   const isLoading = isAllLoading || isFeaturedLoading;

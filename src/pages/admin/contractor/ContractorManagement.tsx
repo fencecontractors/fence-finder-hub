@@ -124,7 +124,7 @@ const ContractorManagement = () => {
                       <TableCell>{contractor.stars} ★ ({contractor.reviews})</TableCell>
                       <TableCell>
                         <Checkbox
-                          checked={contractor.featured}
+                          checked={!!contractor.featured}
                           onCheckedChange={(checked) => 
                             handleToggleFeatured(contractor.unique_id, checked as boolean)
                           }
