@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Contractor, LocationData, BlogPost } from "../types";
 import contractorsData from "./fence_contractors.json";
@@ -11,10 +10,49 @@ export let blogPosts = blogPostsData as BlogPost[];
 // Function to update JSON data persistently (this is a simulation for a real API)
 const updateData = (type: 'blog' | 'contractor', data: any) => {
   // In a real application, this would make an API call to update the server
-  // For this demo, we'll just log the update
+  // For this demo, we'll create a localStorage backup to simulate persistence
+  try {
+    if (type === 'blog') {
+      localStorage.setItem('blogPosts', JSON.stringify(data));
+    } else {
+      localStorage.setItem('fenceContractors', JSON.stringify(data));
+    }
+  } catch (error) {
+    console.error(`Error saving ${type} data to localStorage:`, error);
+  }
+  
   console.log(`Data update for ${type}:`, data);
   return data;
 };
+
+// Initialize data from localStorage if available (for persistence simulation)
+const initializeFromStorage = () => {
+  try {
+    const storedContractors = localStorage.getItem('fenceContractors');
+    const storedBlogPosts = localStorage.getItem('blogPosts');
+    
+    if (storedContractors) {
+      const parsedContractors = JSON.parse(storedContractors);
+      if (Array.isArray(parsedContractors) && parsedContractors.length > 0) {
+        // Copy the stored data to our fenceContractors array
+        fenceContractors.length = 0;
+        parsedContractors.forEach(contractor => fenceContractors.push(contractor));
+      }
+    }
+    
+    if (storedBlogPosts) {
+      const parsedBlogPosts = JSON.parse(storedBlogPosts);
+      if (Array.isArray(parsedBlogPosts) && parsedBlogPosts.length > 0) {
+        blogPosts = parsedBlogPosts;
+      }
+    }
+  } catch (error) {
+    console.error("Error initializing data from localStorage:", error);
+  }
+};
+
+// Call this on initial load
+initializeFromStorage();
 
 // Function to add a new blog post
 export const addBlogPost = (post: BlogPost) => {
@@ -89,8 +127,9 @@ export const useContractors = () => {
   return useQuery({
     queryKey: ["contractors"],
     queryFn: async (): Promise<Contractor[]> => {
-      // In a real app, this would be an API call
-      return contractorsData as Contractor[];
+      // Initialize from storage on each request to ensure latest data
+      initializeFromStorage();
+      return [...fenceContractors];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -196,8 +235,9 @@ export const useFeaturedContractors = () => {
   return useQuery({
     queryKey: ["contractors", "featured"],
     queryFn: async (): Promise<Contractor[]> => {
-      const contractors = contractorsData as Contractor[];
-      return contractors.filter(contractor => contractor.featured === true);
+      // Initialize from storage on each request to ensure latest data
+      initializeFromStorage();
+      return fenceContractors.filter(contractor => contractor.featured === true);
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -224,8 +264,9 @@ export const useBlogPosts = () => {
   return useQuery({
     queryKey: ["blogPosts"],
     queryFn: async (): Promise<BlogPost[]> => {
-      // In a real app, this would be an API call
-      return blogPosts;
+      // Initialize from storage on each request to ensure latest data
+      initializeFromStorage();
+      return [...blogPosts];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

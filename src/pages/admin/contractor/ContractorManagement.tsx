@@ -24,11 +24,16 @@ import { Contractor } from "@/types";
 import { Link } from "react-router-dom";
 
 const ContractorManagement = () => {
-  const { data: contractors = [], isLoading } = useContractors();
+  const { data: contractors = [], isLoading, refetch } = useContractors();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredContractors, setFilteredContractors] = useState<Contractor[]>([]);
   const toggleFeatured = useToggleContractorFeatured();
   const { toast } = useToast();
+
+  // Force refetch on mount to ensure we have the latest data
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   useEffect(() => {
     if (contractors.length > 0) {
@@ -53,6 +58,8 @@ const ContractorManagement = () => {
             title: isFeatured ? "Contractor marked as featured" : "Contractor removed from featured",
             description: "The featured status has been updated successfully.",
           });
+          // Force refetch to update UI with the latest data
+          refetch();
         },
         onError: () => {
           toast({
