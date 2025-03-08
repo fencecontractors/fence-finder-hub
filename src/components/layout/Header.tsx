@@ -1,3 +1,4 @@
+// src/components/layout/Header.tsx
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -42,20 +43,32 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <Link 
-              to="/contractors" 
+            <Link
+              to="/contractors"
               className="text-foreground/90 hover:text-primary transition-colors"
             >
               Find Contractors
             </Link>
-            <Link 
-              to="/blog" 
+            <Link
+              to="/blog"
               className="text-foreground/90 hover:text-primary transition-colors"
             >
               Blog
             </Link>
-            <Button 
-              variant="outline" 
+            <Link
+              to="/about"  // Add About link
+              className="text-foreground/90 hover:text-primary transition-colors"
+            >
+              About
+            </Link>
+            <Link
+              to="/contact"  // Add Contact link
+              className="text-foreground/90 hover:text-primary transition-colors"
+            >
+              Contact
+            </Link>
+            <Button
+              variant="outline"
               size="icon"
               onClick={() => setIsSearchOpen(true)}
               className="ml-2"
@@ -67,8 +80,8 @@ const Header = () => {
 
           {/* Mobile Navigation Buttons */}
           <div className="flex items-center md:hidden">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="icon"
               onClick={() => setIsSearchOpen(true)}
               className="mr-2"
@@ -76,8 +89,8 @@ const Header = () => {
               <Search size={18} />
               <span className="sr-only">Search</span>
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
@@ -89,40 +102,54 @@ const Header = () => {
       </header>
 
       {/* Mobile Menu */}
-      <div 
+      <div
         className={cn(
           "fixed inset-0 z-40 bg-background pt-24 px-6 transform transition-transform duration-300 ease-in-out md:hidden overflow-auto",
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         <nav className="flex flex-col space-y-6 text-lg">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="pb-4 border-b border-border"
             onClick={() => setIsMenuOpen(false)}
           >
             Home
           </Link>
-          <Link 
-            to="/contractors" 
+          <Link
+            to="/contractors"
             className="pb-4 border-b border-border"
             onClick={() => setIsMenuOpen(false)}
           >
             Find Contractors
           </Link>
-          <Link 
-            to="/blog" 
+          <Link
+            to="/blog"
             className="pb-4 border-b border-border"
             onClick={() => setIsMenuOpen(false)}
           >
             Blog
+          </Link>
+          <Link
+            to="/about" // Add About link
+            className="pb-4 border-b border-border"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            About
+          </Link>
+            <Link
+            to="/contact" // Add Contact link
+            className="pb-4 border-b border-border"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Contact
           </Link>
         </nav>
       </div>
 
       {/* Search Modal */}
       <SearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-      
+
       {/* Extra space to offset the fixed header */}
       <div className={isScrolled ? "h-16" : "h-20"} />
     </>

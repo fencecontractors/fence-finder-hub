@@ -1,6 +1,6 @@
-// index.ts
+//src/data/index.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Contractor, LocationData, BlogPost } from "../types";
+import { Contractor, LocationData, BlogPost, Reviewer } from "../types";
 import contractorsData from "./fence_contractors.json";
 import blogPostsData from "./blog_posts.json";
 
@@ -11,6 +11,7 @@ export let blogPosts = blogPostsData as BlogPost[];
 // --- Modified Persistence Logic ---
 
 const FEATURED_CONTRACTORS_KEY = 'featuredContractors';
+const CONTACT_MESSAGES_KEY = 'contactMessages'; // Key for contact messages
 
 // Load featured status
 const loadFeaturedContractors = (): Record<string, boolean> => {
@@ -32,6 +33,28 @@ const saveFeaturedContractors = (featuredStatus: Record<string, boolean>) => {
   }
 };
 
+// Load contact messages
+const loadContactMessages = (): ContactMessage[] => {
+  try {
+    const storedData = localStorage.getItem(CONTACT_MESSAGES_KEY);
+    return storedData ? JSON.parse(storedData) : [];
+  } catch (error) {
+    console.error("Error loading contact messages:", error);
+    return [];
+  }
+};
+
+// Save contact messages
+const saveContactMessages = (messages: ContactMessage[]) => {
+  try {
+    localStorage.setItem(CONTACT_MESSAGES_KEY, JSON.stringify(messages));
+  } catch (error) {
+    console.error("Error saving contact messages:", error);
+  }
+};
+
+
+
 // Initialize data from localStorage
 const initializeFromStorage = () => {
   try {
@@ -52,18 +75,25 @@ const initializeFromStorage = () => {
         blogPosts = parsedBlogPosts;
       }
     }
+     // Load contact messages (No need to modify the global array directly here)
+    loadContactMessages();
   } catch (error) {
     console.error("Error initializing data from localStorage:", error);
   }
 };
 
 // Function to update JSON data persistently (this is a simulation for a real API)
-const updateData = (type: 'blog' | 'contractor', data: any) => {
+const updateData = (type: 'blog' | 'contractor' | 'contactMessage', data: any) => {
     // In a real application, this would make an API call to update the server
     // For this demo, we'll create a localStorage backup to simulate persistence
     try {
         if (type === 'blog') {
             localStorage.setItem('blogPosts', JSON.stringify(data));
+        } else if(type === 'contractor') {
+            localStorage.setItem('contractors', JSON.stringify(data)); // Save contractors
+        }
+        else if(type === 'contactMessage') {
+            localStorage.setItem(CONTACT_MESSAGES_KEY, JSON.stringify(data)); // Save contact messages
         }
     } catch (error) {
         console.error(`Error saving ${type} data to localStorage:`, error);
@@ -149,11 +179,95 @@ export const toggleContractorFeatured = (contractorId: string, featured: boolean
   return fenceContractors[index];
 };
 
+// --- Contact Message Handling ---
+
+interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  date: string;
+  read: boolean; // Add read property
+}
+
+
+// Add a new contact message
+export const addContactMessage = async (message: Omit<ContactMessage, 'id' | 'read'>) => {
+  const messages = loadContactMessages();
+  const newMessage: ContactMessage = {
+    id: String(Date.now()),
+    read: false, // Initialize as unread
+    ...message,
+  };
+  messages.push(newMessage);
+  saveContactMessages(messages);
+  return newMessage;
+};
+
+// Fetch all contact messages
+export const useContactMessages = () => {
+  return useQuery({
+    queryKey: ["contactMessages"],
+    queryFn: async (): Promise<ContactMessage[]> => {
+      return loadContactMessages();
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+// Delete a contact message
+export const deleteContactMessage = async (messageId: string) => {
+  const messages = loadContactMessages();
+  const updatedMessages = messages.filter((msg) => msg.id !== messageId);
+  saveContactMessages(updatedMessages);
+};
+
+// Mark a message as read
+export const markMessageAsRead = async (messageId: string) => {
+  const messages = loadContactMessages();
+  const messageIndex = messages.findIndex((msg) => msg.id === messageId);
+
+  if (messageIndex === -1) {
+    throw new Error(`Message with ID ${messageId} not found`);
+  }
+
+  // Update the message (create a new array to trigger re-render)
+  const updatedMessages = [...messages];
+  updatedMessages[messageIndex] = {
+    ...updatedMessages[messageIndex],
+    read: true,
+  };
+  saveContactMessages(updatedMessages);
+};
+
+// Function to update an existing contractor
+export const updateContractor = (contractor: Contractor) => {
+    const index = fenceContractors.findIndex(c => c.unique_id === contractor.unique_id);
+    if (index === -1) {
+        throw new Error(`Contractor with ID ${contractor.unique_id} not found`);
+    }
+
+    fenceContractors[index] = contractor;
+    updateData('contractor', fenceContractors); // Simulate API call
+    return contractor;
+};
+
 // Utility to load all contractors
 export const useContractors = () => {
   return useQuery({
     queryKey: ["contractors"],
     queryFn: async (): Promise<Contractor[]> => {
+      const storedContractors = localStorage.getItem('contractors');
+        if (storedContractors) {
+            try {
+                const parsedContractors = JSON.parse(storedContractors);
+                if (Array.isArray(parsedContractors)) {
+                    return parsedContractors;
+                }
+            } catch (error) {
+                console.error("Error parsing stored contractors:", error);
+            }
+        }
       initializeFromStorage(); // Correct place for initialize from storage
       return [...fenceContractors];
     },

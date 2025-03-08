@@ -1,3 +1,5 @@
+// src/components/layout/PageLayout.tsx
+
 
 import { ReactNode, useMemo } from "react";
 import { useLocation } from "react-router-dom";
