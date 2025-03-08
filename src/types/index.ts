@@ -1,5 +1,5 @@
-// src/types/index.ts
 
+// src/types/index.ts
 
 export interface Contractor {
   title: string;
@@ -24,6 +24,8 @@ export interface Contractor {
   local_image_path?: string; // New field for local image path
   featured?: boolean; // New field to mark a contractor as featured
   reviewers?: Reviewer[]; // New field for reviews
+  meta_description?: string; // New field for SEO
+  meta_keywords?: string[]; // New field for SEO
 }
 
 export interface Reviewer {
@@ -43,6 +45,8 @@ export interface BlogPost {
   date: string;
   image?: string;
   tags: string[];
+  meta_description?: string; // New field for SEO
+  meta_keywords?: string[]; // New field for SEO
 }
 
 export interface LocationData {
@@ -55,4 +59,22 @@ export interface SearchFilters {
   query: string;
   state?: string;
   city?: string;
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  date: string;
+  read: boolean;
+}
+
+export interface SeoConfig {
+  title: string;
+  description: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  ogType?: string;
+  schema?: Record<string, any>;
 }
