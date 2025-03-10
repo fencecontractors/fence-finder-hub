@@ -1,5 +1,3 @@
-// src/pages/ContractorDetail.tsx
-
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
@@ -16,25 +14,28 @@ const ContractorDetail = () => {
   const [neighborIds, setNeighborIds] = useState<string[]>([]);
   const { data: neighborContractors = [], isLoading: isLoadingNeighbors } = useNeighboringContractors(neighborIds);
   const [imageError, setImageError] = useState(false);
-
+  
+  // Set neighbor IDs when contractor data is loaded
   useEffect(() => {
     if (contractor?.neighbors) {
       setNeighborIds(contractor.neighbors);
     }
   }, [contractor]);
 
+  // Image source with fallback
   const imageSrc = useMemo(() => {
     if (!contractor) return '';
-    return contractor.local_image_path
-      ? `/images/${contractor.unique_id}.jpg`
-      : imageError
-        ? contractor.photo_url
+    return contractor.local_image_path 
+      ? `/images/${contractor.unique_id}.jpg` 
+      : imageError 
+        ? contractor.photo_url 
         : contractor.updated_image;
   }, [contractor, imageError]);
 
+  // Generate schema for structured data
   const schema = useMemo(() => {
     if (!contractor) return null;
-
+    
     return {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
@@ -61,16 +62,17 @@ const ContractorDetail = () => {
     };
   }, [contractor, imageSrc]);
 
+  // Meta title and description
   const metaTitle = useMemo(() => {
     if (!contractor) return "Contractor Details | Fence Contractors Directory";
     return `${contractor.title} - Fence Contractor in ${contractor.city}, ${contractor.state}`;
   }, [contractor]);
-
+  
   const metaDescription = useMemo(() => {
     if (!contractor) return "Find detailed information about this fence contractor";
     return `${contractor.title} provides fence services in ${contractor.city}, ${contractor.state}. Rated ${contractor.stars} stars from ${contractor.reviews} reviews. Contact at ${contractor.phone}.`;
   }, [contractor]);
-
+  
   const canonicalUrl = useMemo(() => {
     if (!contractor || !state || !city || !id) return undefined;
     return `${window.location.origin}/contractors/${state}/${city}/${id}`;
@@ -107,7 +109,7 @@ const ContractorDetail = () => {
     >
       <div className="page-container">
         <ContractorHeader contractor={contractor} state={state} city={city} />
-
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             <ContractorInfo
@@ -116,14 +118,12 @@ const ContractorDetail = () => {
               setImageError={setImageError}
             />
             <LocationMapSection contractor={contractor} />
-
-            {/* Pass businessTitle to ContractorReviews */}
-            <ContractorReviews
-              reviews={contractor.reviewers || []}
-              businessTitle={contractor.title}
-            />
+            
+            {contractor.reviewers && contractor.reviewers.length > 0 && (
+              <ContractorReviews reviews={contractor.reviewers} />
+            )}
           </div>
-
+          
           <div className="space-y-8">
             <NearbyContractors
               neighborContractors={neighborContractors}

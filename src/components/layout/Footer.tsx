@@ -1,4 +1,4 @@
-// src/components/layout/Footer.tsx
+
 import { Link } from "react-router-dom";
 import { useLocationData } from "@/data";
 import { formatStateForUrl } from "@/utils";
@@ -10,7 +10,6 @@ const Footer = () => {
     <footer className="bg-muted mt-16">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* ... existing footer content ... */}
           <div>
             <Link to="/" className="flex items-center space-x-2 mb-4">
               <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
@@ -52,27 +51,6 @@ const Footer = () => {
                   Blog
                 </Link>
               </li>
-              {/* Add other links here */}
-                <li>
-                    <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
-                    About Us
-                    </Link>
-                </li>
-                <li>
-                    <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">
-                    Contact Us
-                    </Link>
-                </li>
-                <li>
-                    <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">
-                    Privacy Policy
-                    </Link>
-                </li>
-                <li>
-                    <Link to="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors">
-                    Terms of Service
-                    </Link>
-                </li>
             </ul>
           </div>
 

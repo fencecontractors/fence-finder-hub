@@ -17,11 +17,6 @@ import BlogIndex from "./pages/BlogIndex";
 import BlogPostDetail from "./pages/BlogPostDetail";
 import SearchResults from "./pages/SearchResults";
 import Sitemap from "./pages/Sitemap";
-import About from "@/pages/About";
-import Contact from "@/pages/Contact";
-import PrivacyPolicy from "@/pages/PrivacyPolicy";
-import TermsOfService from "@/pages/TermsOfService";
-import ContactMessages from "./pages/admin/ContactMessages";
 
 // Admin Routes
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -42,12 +37,6 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-
-
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
             
             {/* Contractors Routes */}
             <Route path="/contractors" element={<ContractorsIndex />} />
@@ -73,7 +62,6 @@ const App = () => (
               <Route path="blogs/create" element={<BlogEditor />} />
               <Route path="blogs/edit/:id" element={<BlogEditor />} />
               <Route path="contractors" element={<ContractorManagement />} />
-             <Route path="contact-messages" element={<ContactMessages />} />
             </Route>
             
             {/* 404 Route */}

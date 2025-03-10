@@ -1,24 +1,18 @@
-// src/components/ContractorReviews.tsx
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Reviewer } from "@/types";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User } from "lucide-react";
 
 interface ContractorReviewsProps {
-  reviews: { reviewer_name: string; review_text: string }[];
-  businessTitle: string; // Add businessTitle prop
+  reviews: Reviewer[];
 }
 
-const ContractorReviews = ({ reviews, businessTitle }: ContractorReviewsProps) => {
+const ContractorReviews = ({ reviews }: ContractorReviewsProps) => {
   if (!reviews || reviews.length === 0) {
-    return (
-      <div className="bg-card rounded-xl shadow-sm p-6 border">
-        <h2 className="text-2xl font-semibold mb-4">{businessTitle} Customer Reviews</h2>
-        <p>No reviews yet.</p>
-      </div>
-    );
+    return null;
   }
 
-  // Filter out duplicate reviews
+  // Filter out duplicate reviews by creating a Map with reviewer_name + review_text as key
   const uniqueReviewsMap = new Map();
   reviews.forEach((review) => {
     const key = `${review.reviewer_name}-${review.review_text}`;
@@ -26,11 +20,14 @@ const ContractorReviews = ({ reviews, businessTitle }: ContractorReviewsProps) =
       uniqueReviewsMap.set(key, review);
     }
   });
+  
+  // Convert the Map values back to an array
   const uniqueReviews = Array.from(uniqueReviewsMap.values());
 
   return (
     <div className="bg-card rounded-xl shadow-sm p-6 border">
-      <h2 className="text-2xl font-semibold mb-4">{businessTitle} Customer Reviews</h2>
+      <h2 className="text-2xl font-semibold mb-4">Customer Reviews</h2>
+      
       <div className="space-y-4">
         {uniqueReviews.map((review, index) => (
           <Card key={index} className="bg-muted/30">

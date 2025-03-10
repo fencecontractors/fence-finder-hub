@@ -1,22 +1,13 @@
-// src/pages/admin/AdminDashboard.tsx
 
 import { Link } from "react-router-dom";
-import { useBlogPosts, useContractors, useContactMessages } from "@/data"; // Import useContactMessages
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { BookOpen, Users, FileText, Plus, List, Mail } from "lucide-react"; // Import Mail icon
+import { useBlogPosts, useContractors } from "@/data";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookOpen, Users, FileText, Plus, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const AdminDashboard = () => {
   const { data: blogPosts = [] } = useBlogPosts();
   const { data: contractors = [] } = useContractors();
-  const { data: messages = [] } = useContactMessages(); // Get messages
 
   const stats = [
     {
@@ -24,22 +15,15 @@ const AdminDashboard = () => {
       value: blogPosts.length,
       icon: <BookOpen className="h-5 w-5" />,
       color: "text-blue-500",
-      link: "/admin/blogs",
+      link: "/admin/blogs"
     },
     {
       title: "Contractors",
       value: contractors.length,
       icon: <Users className="h-5 w-5" />,
       color: "text-green-500",
-      link: "/admin/contractors",
-    },
-    {
-      title: "Messages", // Add Messages stat
-      value: messages.length,
-      icon: <Mail className="h-5 w-5" />, // Add Mail icon
-      color: "text-purple-500", // Choose a color
-      link: "/admin/contact-messages",
-    },
+      link: "/admin/contractors"
+    }
   ];
 
   return (
@@ -48,8 +32,12 @@ const AdminDashboard = () => {
         {stats.map((stat, index) => (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <div className={`${stat.color}`}>{stat.icon}</div>
+              <CardTitle className="text-sm font-medium">
+                {stat.title}
+              </CardTitle>
+              <div className={`${stat.color}`}>
+                {stat.icon}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
